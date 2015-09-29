@@ -10,12 +10,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = ""centos-6.4-x86_64""
+  config.vm.box = "puphpet/centos65-x64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   # config.vm.box_url = "http://domain.com/path/to/above.box"
-  config.vm.box_url = "https://dl.dropboxusercontent.com/u/97268835/boxes/centos-6.4-x86_64.box"
 
 
 
@@ -24,8 +23,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network :forwarded_port, guest: 80, host: 8080
   config.vm.hostname = "xe11g.example.com"
-  config.vm.network :forwarded_port, guest: 8080, host: 8080
-  config.vm.network :forwarded_port, guest: 1521, host: 1521
+  config.vm.network :forwarded_port, guest: 8080, host: 8080, auto_correct: true
+  config.vm.network :forwarded_port, guest: 1521, host: 1521, auto_correct: true
   
 
   # Create a private network, which allows host-only access to the machine
@@ -47,6 +46,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
+  # config.vm.synced_folder ".", "/vagrant", :nfs => { :mount_options => ["dmode=777","fmode=777"] }
   config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
 
   # Provider-specific configuration so you can fine-tune various
@@ -58,7 +58,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   vb.gui = true
   #
   #   # Use VBoxManage to customize the VM. For example to change memory:
-    vb.customize ["modifyvm", :id, "--memory", "512"]
+
+    host = RbConfig::CONFIG['host_os']
+
+    # access to all cpu cores on the host
+    if host =~ /linux/
+      cpus = `nproc`.to_i
+    else
+      cpus = 2
+    end
+
+    vb.customize ["modifyvm", :id, "--cpus", cpus]
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    vb.customize ["modifyvm", :id, "--vram", "10"]
   end
   #
   # View the documentation for the provider you're using for more

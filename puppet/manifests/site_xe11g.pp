@@ -87,28 +87,25 @@ class os2 {
         hasstatus => true,
   }
 
-
-
- 
 }
 
 
 class oraclexe {
 
-  file { '/vagrant/sql/setUpSQL.sh':
+  file { '/vagrant/oracle/setup.sh':
     ensure  => 'present',
     mode    => '0755',
     owner   => 'vagrant';
   }
   
   exec { "Install Oracle XE 11g":
-    command => "/bin/rpm -ivh /vagrant/oracle-xe-11.2.0-1.0.x86_64.rpm > /tmp/XEsilentinstall.log",
+    command => "/bin/rpm -ivh /vagrant/oracle/software/oracle-xe-11.2.0-1.0.x86_64.rpm > /tmp/XEsilentinstall.log",
     require => Exec["attach swap file"],
     creates => "/etc/init.d/oracle-xe",
   }
   
   exec { "Configure Oracle XE":
-    command => "/etc/init.d/oracle-xe configure responseFile=/vagrant/xe.rsp >> /tmp/XEsilentinstall.log" ,
+    command => "/etc/init.d/oracle-xe configure responseFile=/vagrant/oracle/xe.rsp >> /tmp/XEsilentinstall.log" ,
     require => Exec["Install Oracle XE 11g"],
   }
   
@@ -123,8 +120,8 @@ class oraclexe {
     require => Exec["SetORACLE_ENVForVagrant"],
   }
   
-  exec { "UnlockHR":
-    command => "/vagrant/sql/setUpSQL.sh",
+  exec { "Execute setup SQL":
+    command => "/vagrant/oracle/setup.sh",
     require => Exec["AddVagrantToDBAGroup"],
     user    => "vagrant",
   }

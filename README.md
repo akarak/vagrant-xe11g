@@ -1,62 +1,63 @@
 vagrant-xe11g
 =============
 
-Version 1.0.1 - Notes
+Разворачивание Oracle XE 11g на CentOS под управлением VirtualBox.
 
-Changed to smaller packer.io based box with VBox 4.3.2 VBGA
-Turned off iptables in site_xe11g.pp script in the OS config section.
+Исходный проект
+https://github.com/matthewbaldwin/vagrant-xe11g
 
-
-
-Motivation:
-
-There are times you need an Oracle database, but you don't want to go into all of the effort and cruft of creating one.
-
-This creates an Oracle XE 11g database which is fully functional to use with the HR schema unlocked in about 5 minutes.
-
-It is very lean and mean.  It boots, via the Vagrantfile, with 512mb RAM allocated to the VM and has the bare minimum of files on the Vagrant box.
-It also has 1GB of swap.
-
-Kit Needed:
-
-Oracle 11g XE R2
-
-http://www.oracle.com/technetwork/products/express-edition/overview/index.html
-
-These scripts use:
-
-- oracle-xe-11.2.0-1.0.x86_64.rpm
-
-I added some dba niceties for this box.
-
-- The box now comes with the hostname xe11g.example.com.  I have removed the node information in the site_xe11g.pp file.
-- vagrant user is a member of the dba group.
-- I have added the oracle_env.sh script to the .bashrc for vagrant so you can use sqlplus in the command line
-- Password are "oracle" for system and sys.  You can see those in the response file in the root of the project.
-- Password for root is vagrant (all vagrant boxes).
-- Related to (2) above, I have a really basic shell script that can be used to incorporate your own schemas when you do the vagrant up or run seperately.  It is a nice example that I found and hacked.
-- You can access the database in either of the following ways from your host machine:
-
-  - http://localhost:8080/apex
-  - Via the normal tns listener port of 1521 from your host machine...for tools like JDeveloper or Eclipse.
-
-~~The one area which I needed a little thought on is handling the swap file if you perform a halt.  I don't add the swap file which is created in the site pp to fstab.  If someone wants to help with that...I will welcome that.  Therefore, I would use a vagrant suspend command. Once running...why do you need to reboot now?  Just do a pause.~~
-
-The fstab above has been resolved thanks to a repo that I found installing Oracle XE (great minds think alike)
-
-https://github.com/rjdkolb/vagrant-ubuntu-oracle-xe/blob/master/modules/oracle/manifests/init.pp
-
-I have added the solution to it to the OS2 class in the site_xe11g.pp
-
-Also...oracle (the user and member of group dba), sounds like a movie doesn't it?  The user "oracle" doesn't have a password or a home directory.  Frankly, you don't need one since vagrant is in the dba group.  If you want to add a passowrd go ahead and su to root and run "passwd oracle" and then change the password.  If you want it persistant, then add a stanza to the site puppet file. 
-
-I will be posting some more information on http://vbatik.wordpress.com so stay tuned. 
-
-Enjoy...
-
-/Matt
-
-Twitter: @baldwinonline
+Подготовка к разворачиванию
+1. Установка VizrtualBox
+https://www.virtualbox.org/
+2. Установка Git
+http://git-scm.com/download/win или https://git-for-windows.github.io/
+3. Установка Vagrant.
+http://www.vagrantup.com/
+3.1. Установка плагина для доступа по SSH
+3.1.1. Скачиваем putty
+http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
+3.1.2. Добавляем путь к Putty в переменную PATH
+3.1.3. Скачиваем плагин для Vagrant
+https://github.com/nickryand/vagrant-multi-putty
+3.1.4. Устанавливаем плагин
+vagrant plugin install vagrant-multi-putty
+Если в момент запуска Vagrant возникают ошибки, то необходимо удалить файл %USERPROFILE%\.vagrant.d\plugins.json и повторно установить плагин.
+4. Установка Puppet
+https://downloads.puppetlabs.com/windows/
+5. Скачиваем в папку oracle\software\ дистрибутив Oracle XE 11g
+Файл oracle-xe-11.2.0-1.0.x86_64.rpm, доступный по адресу http://www.oracle.com/technetwork/database/database-technologies/express-edition/downloads/index.html
 
 
+Работа с виртуальной машиной
+1. Аккаунты
+1.1. Пользователи OS
+root:vagrant, vagrant:vagrant
+1.2. DBA
+oracle:oracle
 
+2. Использование
+2.1. Vagrant
+2.1.1. Запуск
+vagrant up
+2.1.2. Останов
+vagrant halt
+2.2. Доступ к Oracle с хоста
+2.2.1. http://localhost:8080/apex
+Workspace: Internal
+User Name: admin
+Password: oracle
+2.2.2. Клиент 
+hostname localhost
+sid XE
+
+
+Дополнительная информация
+Installing Oracle XE 11g
+on CentOS
+http://tuhrig.de/3-ways-of-installing-oracle-xe-11g-on-ubuntu/
+https://github.com/matthewbaldwin/vagrant-xe11g
+
+on Ubuntu
+https://technology.amis.nl/2014/07/29/fastest-way-to-a-virtual-machine-with-jdeveloper-12-1-3-and-oracle-database-xe-11gr2-on-ubuntu-linux-64-bit/
+или
+https://technology.amis.nl/2014/06/26/provisioning-an-oracle-11g-database-virtualbox-vm-with-vagrant-and-puppet-for-dummies/
